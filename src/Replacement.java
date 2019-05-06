@@ -12,39 +12,49 @@ public class Replacement {
         //      3: finish project methods
         System.out.println("hello world");
         //frames = Integer.parseInt(args[1]);
-        int counter = 0, FIFO_sum = 0, LRU_sum = 0, RAND_sum = 0, OPT_sum = 0;
+        int counter = 0, // used to count how many lines were processed for averaging
+                FIFO_sum = 0, // sum of all fifo faults
+                LRU_sum = 0, // sum of all LRU faults
+                RAND_sum = 0, // sum of all random faults
+                OPT_sum = 0; // sum of all optimized faults
 
+        // test code
         String testS = "1 2 3 1 2 1 4 1";
         int[] arr = stringToIntArray(testS);
         for(int i : arr) System.out.println(i + 1);
         frames = 3;
         System.out.println("FIFO FAULTS: " + FIFO(testS));
 
+        // end test code
 
 
+        // commented all this out for testing
+        // reads the file
         /*try(BufferedReader br = new BufferedReader(new FileReader(args[0]))){
-            String line;
+            String line; // string used for each line to be passed into functions
+
+            // loop for every line
             while((line = br.readLine()) != null){
-                //TODO: create a method that turns the string into an array of ints
+                // sum all faults for every line together
                 FIFO_sum += FIFO(line);
                 LRU_sum += LRU(line);
                 RAND_sum += Random(line);
                 OPT_sum += Optimized(line);
-                counter++;
+                counter++; // add one to the line counter
             }
         }
         catch (Exception e){}
-
+        // process data to find averages and prints them
         System.out.println("Here are the average page faults for each method:" +
                 "\nFIFO: " + (FIFO_sum/counter) +
                 "\nLRU: " + (LRU_sum/counter) +
                 "\nRandom: " + (RAND_sum/counter) +
                 "\nOptimized: " + (OPT_sum/counter));*/
     }
-    // TODO: loop for every number in the line
+    // First In First Out method
     public static int FIFO(String s){
         int[] storage = new int[frames]; // main array to check for page faults
-        Queue intQueue = new LinkedList();
+        Queue intQueue = new LinkedList(); // queue for checking which value needs replacement
         int[] intList = stringToIntArray(s); // convert string to int array
         int faultCount = 0; // counter for faults
         boolean isFound;
@@ -71,16 +81,7 @@ public class Replacement {
             }
         }
 
-        // TODO: create search() and containsNull()
-        /*if(!search(storage) && containsNull(storage)){
-            faultCount++;
-            for(int i : storage){
-                if(i == null)
-            }
-        }
-        else if(!search(storage)){
-            faultCount++;
-        }*/
+
         return 0;
     }
 
