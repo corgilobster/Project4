@@ -10,16 +10,17 @@ public class Replacement {
         //TODO: 1: take in command line arguments and assign them to variables
         //      2: finish readFile method
         //      3: finish project methods
-        System.out.println("hello world");
+        //System.out.println("hello world");
         //frames = Integer.parseInt(args[1]);
         int counter = 0, FIFO_sum = 0, LRU_sum = 0, RAND_sum = 0, OPT_sum = 0;
 
-        String testS = "1 2 3 1 2 1 4 1";
+        String testS = "1 2 3 1 4 5";
         int[] arr = stringToIntArray(testS);
-        for(int i : arr) System.out.println(i + 1);
+        //for(int i : arr) System.out.println(i);
         frames = 3;
-        System.out.println("FIFO FAULTS: " + FIFO(testS));
-
+        //System.out.println("FIFO FAULTS: " + FIFO(testS));
+        System.out.println("Testing: " + testS + ", " + frames + " frames");
+        LRU(arr);
 
 
         /*try(BufferedReader br = new BufferedReader(new FileReader(args[0]))){
@@ -84,9 +85,41 @@ public class Replacement {
         return 0;
     }
 
-    public static int LRU(String s){
-        int[] storage = new int[frames];
-        return 0;
+    public static void LRU(int[] arr){ //Least Recently Used
+        System.out.println("LRU START");
+        int[] storage = new int[frames]; //page frames holding page references
+        int faultCount = 0;
+
+        for (int i = 0; i < storage.length; i++) storage[i] = -1; //negative used as "empty" for initial storage
+        for (int num : arr) { //for every number in the string
+            boolean miss = true;
+            System.out.println("COMPARE: " + num);
+            for (int frame = 0; frame < storage.length; frame++) { //compare to each frame
+                int page = storage[frame];
+                if(num == page) { //HIT
+                    miss = false;
+                    System.out.println("HIT at Frame #" + frame);
+                    for (int i = frame; i > 0; i--) { //all other numbers moved back in array
+                        storage[i] = storage[i-1];
+                    }
+                    storage[0] = num; //first in array is now most recently used
+                    break; //stop traversal
+                }
+            } //END OF storage
+
+            if(miss) {
+                faultCount++;
+                System.out.println("FAULT #" + faultCount + ", Removing: " + storage[storage.length-1]);
+                for(int i = storage.length-1; i > 0; i--) {
+                    storage[i] = storage[i-1]; //all numbers moved back, least recently used is removed
+                }
+                storage[0] = num;
+            }
+        } //END OF INPUT ARRAY
+
+        System.out.println("LRU FAULTS: " + faultCount);
+
+        return;
     }
 
     public static int Random(String s){
