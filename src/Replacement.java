@@ -14,13 +14,12 @@ public class Replacement {
         //frames = Integer.parseInt(args[1]);
         int counter = 0, FIFO_sum = 0, LRU_sum = 0, RAND_sum = 0, OPT_sum = 0;
 
-        String testS = "7 0 1 2 0 3 0 4 2 3 0 3 2 3";
+        String testS = "1 3 0 3 5 6 3";
         int[] arr = stringToIntArray(testS);
         //for(int i : arr) System.out.println(i);
-        frames = 4;
-        //System.out.println("FIFO FAULTS: " + FIFO(testS));
+        frames = 3;
         System.out.println("Testing: " + testS + ", " + frames + " frames");
-        LRU(arr);
+        FIFO(arr);
 
 
         /*try(BufferedReader br = new BufferedReader(new FileReader(args[0]))){
@@ -43,46 +42,38 @@ public class Replacement {
                 "\nOptimized: " + (OPT_sum/counter));*/
     }
     // TODO: loop for every number in the line
-    public static int FIFO(String s){
-        int[] storage = new int[frames]; // main array to check for page faults
-        Queue intQueue = new LinkedList();
-        int[] intList = stringToIntArray(s); // convert string to int array
-        int faultCount = 0; // counter for faults
-        boolean isFound;
 
-        for(int x : intList){
-            isFound = false;
-            for(int i = 0; i < storage.length; i++){
-                if(x == storage[i]){
-                    isFound = true;
-                    break;
+    public static void FIFO(int[] arr) {
+        System.out.println("FIFO START");
+        int[] storage = new int[frames]; //page frames holding page references
+        int faultCount = 0;
+        int replace = 0; //index of page replacement
+
+        for(int i = 0; i < storage.length; i++) storage[i] = -1;
+
+        for (int num : arr) { //for every number in the string
+            boolean miss = true;
+            //System.out.println("COMPARE: " + num);
+            for (int f = 0; f < storage.length; f++) { //compare to each frame
+                int page = storage[f];
+                if(num == page) { //HIT
+                    miss = false;
+                    //System.out.println("HIT (" + num + ")");
+                    break; //stop traversal
                 }
-            }
-            if(isFound == false){
+            } //END OF storage traversal
+
+            if(miss) {
                 faultCount++;
-                try{
-                    intQueue.add(x);
-                } catch(Exception e){
-                    int removed = (Integer)intQueue.remove();
-                    for(int i = 0; i < storage.length; i++){
-                        if(storage[i] == removed) storage[i] = x;
-                        intQueue.add(x);
-                    }
-                }
+                //System.out.println("FAULT #" + faultCount + ", Replace " + storage[replace] + " with " + num);
+                storage[replace] = num;
+                replace = (replace + 1) % storage.length;
             }
-        }
+        } //END OF INPUT ARRAY
 
-        // TODO: create search() and containsNull()
-        /*if(!search(storage) && containsNull(storage)){
-            faultCount++;
-            for(int i : storage){
-                if(i == null)
-            }
-        }
-        else if(!search(storage)){
-            faultCount++;
-        }*/
-        return 0;
+        System.out.println("FIFO FAULTS: " + faultCount);
+
+        return;
     }
 
     public static void LRU(int[] arr){ //Least Recently Used
@@ -98,7 +89,7 @@ public class Replacement {
                 int page = storage[frame];
                 if(num == page) { //HIT
                     miss = false;
-                    System.out.println("HIT at Frame #" + frame);
+                    //System.out.println("HIT at Frame #" + frame);
                     for (int i = frame; i > 0; i--) { //all other numbers moved back in array
                         storage[i] = storage[i-1];
                     }
@@ -109,7 +100,8 @@ public class Replacement {
 
             if(miss) {
                 faultCount++;
-                System.out.println("FAULT #" + faultCount + ", Removing: " + storage[storage.length-1]);
+                //if(storage[storage.length-1] == -1) System.out.println("FAULT #" + faultCount); //initial faults
+                //else System.out.println("FAULT #" + faultCount + ", Removing: " + storage[storage.length-1]);
                 for(int i = storage.length-1; i > 0; i--) {
                     storage[i] = storage[i-1]; //all numbers moved back, least recently used is removed
                 }
@@ -128,7 +120,7 @@ public class Replacement {
     }
 
     public static void Optimized(int[] arr){
-        int[][] storage = new int[frames][2]; //2D Array, for page ref and iterations until used next
+        int[][] storage = new int[frames][2]; //2D Array, for page ref and iterations until next use
         int faultCount = 0;
         for(int i = 0; i < storage.length; i++) {
             for(int j = 0; j < storage[i].length; j++) {
@@ -141,7 +133,6 @@ public class Replacement {
         for (int i = 0; i < arr.length; i++) { //for every number in the string
             int num = arr[i];
             boolean miss = true;
-            //System.out.println("COMPARE: " + num);
             for (int f = 0; f < storage.length; f++) { //compare to each frame
                 int page = storage[f][0];
                 if(num == page) { //HIT
@@ -153,40 +144,32 @@ public class Replacement {
 
             if(miss) {
                 faultCount++;
-//                for(int f = 0; f < storage.length; f++) { //for each frame in storage, count until next use
-//                    int page = storage[f][0];
-//                    int nextUse = 1; //how many iterations to next use
-//                    for(int j = i+1; j < arr.length; j++) { //for the numbers next in array
-//                        if(page == arr[j]) break; //stop traversing input array
-//                        nextUse++;
-//                    }
-//                    storage[f][1] = nextUse;
-//                }
-
-                int greatest = -1; //greatest amount of time before next use
-                for(int f = 0; f < storage.length; f++) {
+                int greatest = -1;
+                for(int f = 0; f < storage.length; f++) { //find page with greatest amount of time before next use
                     if(storage[f][1] > greatest) greatest = storage[f][1];
                 }
 
                 for(int f = 0; f < storage.length; f++) {
-                    if(storage[f][1] == greatest) { //replace page with greatest time until next use
+                    if(storage[f][1] == greatest) { //find and replace optimal page
                         System.out.print(storage[f][0] + " used next in " + storage[f][1] + " --> ");
                         System.out.println("FAULT #" + faultCount + ", Replace with: " + num);
-                        storage[f][0] = num;
-                        int nextUse = 1; //how many iterations to next use
-                        for(int j = i+1; j < arr.length; j++) { //for the numbers next in array
-                            if(num == arr[j]) break; //stop traversing input array
+                        storage[f][0] = num; //place page reference in storage
+                        int nextUse = 1;
+                        for(int j = i+1; j < arr.length; j++) { //For new num, count until next use
+                            if(num == arr[j]) break;
                             nextUse++;
                         }
                         storage[f][1] = nextUse;
                         break;
                     }
                 }
-            }
+            } //END OF miss CASE
         } //END OF INPUT ARRAY
 
+        System.out.println("OPTIMIZED FAULTS: " + faultCount);
         return;
     }
+
     boolean search(int[] A, int x){
         int p = 0, r = A.length-1;
         int q;
