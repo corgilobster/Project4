@@ -14,10 +14,10 @@ public class Replacement {
         //frames = Integer.parseInt(args[1]);
         int counter = 0, FIFO_sum = 0, LRU_sum = 0, RAND_sum = 0, OPT_sum = 0;
 
-        String testS = "1 2 3 4 5 5 7 8 5 10 11";
+        String testS = "7 0 1 2 0 3 0 4 2 3 0 3 2 3";
         int[] arr = stringToIntArray(testS);
         //for(int i : arr) System.out.println(i);
-        frames = 5;
+        frames = 4;
         //System.out.println("FIFO FAULTS: " + FIFO(testS));
         System.out.println("Testing: " + testS + ", " + frames + " frames");
         LRU(arr);
@@ -127,12 +127,12 @@ public class Replacement {
         return 0;
     }
 
-    public static int Optimized(int[] arr){
+    public static void Optimized(int[] arr){
         int[][] storage = new int[frames][2]; //2D Array, for page ref and iterations until used next
         int faultCount = 0;
-        for(int i = 0; i < storage.length; i++) { //initialize all to -1
+        for(int i = 0; i < storage.length; i++) {
             for(int j = 0; j < storage[i].length; j++) {
-                storage[i][j] = -1;
+                storage[i][j] = 999; //initially large value that is always replaced
             }
         }
 
@@ -153,15 +153,15 @@ public class Replacement {
 
             if(miss) {
                 faultCount++;
-                for(int f = 0; f < storage.length; f++) { //for each frame in storage, count until next use
-                    int page = storage[f][0];
-                    int nextUse = 1; //how many iterations to next use
-                    for(int j = i+1; j < arr.length; j++) { //for the numbers next in array
-                        if(page == arr[j]) break; //stop traversing input array
-                        nextUse++;
-                    }
-                    storage[f][1] = nextUse;
-                }
+//                for(int f = 0; f < storage.length; f++) { //for each frame in storage, count until next use
+//                    int page = storage[f][0];
+//                    int nextUse = 1; //how many iterations to next use
+//                    for(int j = i+1; j < arr.length; j++) { //for the numbers next in array
+//                        if(page == arr[j]) break; //stop traversing input array
+//                        nextUse++;
+//                    }
+//                    storage[f][1] = nextUse;
+//                }
 
                 int greatest = -1; //greatest amount of time before next use
                 for(int f = 0; f < storage.length; f++) {
@@ -169,17 +169,23 @@ public class Replacement {
                 }
 
                 for(int f = 0; f < storage.length; f++) {
-                    if(storage[f][1] == greatest) { //find page with greatest time until next use
+                    if(storage[f][1] == greatest) { //replace page with greatest time until next use
+                        System.out.print(storage[f][0] + " used next in " + storage[f][1] + " --> ");
+                        System.out.println("FAULT #" + faultCount + ", Replace with: " + num);
                         storage[f][0] = num;
-                        storage[f][1] = -1;
+                        int nextUse = 1; //how many iterations to next use
+                        for(int j = i+1; j < arr.length; j++) { //for the numbers next in array
+                            if(num == arr[j]) break; //stop traversing input array
+                            nextUse++;
+                        }
+                        storage[f][1] = nextUse;
+                        break;
                     }
                 }
-
-                System.out.println("FAULT #" + faultCount + ", Removing: " + storage[storage.length-1]);
             }
         } //END OF INPUT ARRAY
 
-        return 0;
+        return;
     }
     boolean search(int[] A, int x){
         int p = 0, r = A.length-1;
