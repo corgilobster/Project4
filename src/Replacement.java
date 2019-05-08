@@ -14,10 +14,10 @@ public class Replacement {
         //frames = Integer.parseInt(args[1]);
         int counter = 0, FIFO_sum = 0, LRU_sum = 0, RAND_sum = 0, OPT_sum = 0;
 
-        String testS = "1 2 3 1 4 5";
+        String testS = "1 2 3 4 5 5 7 8 5 10 11";
         int[] arr = stringToIntArray(testS);
         //for(int i : arr) System.out.println(i);
-        frames = 3;
+        frames = 5;
         //System.out.println("FIFO FAULTS: " + FIFO(testS));
         System.out.println("Testing: " + testS + ", " + frames + " frames");
         LRU(arr);
@@ -93,7 +93,7 @@ public class Replacement {
         for (int i = 0; i < storage.length; i++) storage[i] = -1; //negative used as "empty" for initial storage
         for (int num : arr) { //for every number in the string
             boolean miss = true;
-            System.out.println("COMPARE: " + num);
+            //System.out.println("COMPARE: " + num);
             for (int frame = 0; frame < storage.length; frame++) { //compare to each frame
                 int page = storage[frame];
                 if(num == page) { //HIT
@@ -127,8 +127,58 @@ public class Replacement {
         return 0;
     }
 
-    public static int Optimized(String s){
-        int[] storage = new int[frames];
+    public static int Optimized(int[] arr){
+        int[][] storage = new int[frames][2]; //2D Array, for page ref and iterations until used next
+        int faultCount = 0;
+        for(int i = 0; i < storage.length; i++) { //initialize all to -1
+            for(int j = 0; j < storage[i].length; j++) {
+                storage[i][j] = -1;
+            }
+        }
+
+        System.out.println("OPTIMIZED START");
+
+        for (int i = 0; i < arr.length; i++) { //for every number in the string
+            int num = arr[i];
+            boolean miss = true;
+            //System.out.println("COMPARE: " + num);
+            for (int f = 0; f < storage.length; f++) { //compare to each frame
+                int page = storage[f][0];
+                if(num == page) { //HIT
+                    miss = false;
+                    System.out.println("HIT at Frame #" + f);
+                    break;
+                }
+            }
+
+            if(miss) {
+                faultCount++;
+                for(int f = 0; f < storage.length; f++) { //for each frame in storage, count until next use
+                    int page = storage[f][0];
+                    int nextUse = 1; //how many iterations to next use
+                    for(int j = i+1; j < arr.length; j++) { //for the numbers next in array
+                        if(page == arr[j]) break; //stop traversing input array
+                        nextUse++;
+                    }
+                    storage[f][1] = nextUse;
+                }
+
+                int greatest = -1; //greatest amount of time before next use
+                for(int f = 0; f < storage.length; f++) {
+                    if(storage[f][1] > greatest) greatest = storage[f][1];
+                }
+
+                for(int f = 0; f < storage.length; f++) {
+                    if(storage[f][1] == greatest) { //find page with greatest time until next use
+                        storage[f][0] = num;
+                        storage[f][1] = -1;
+                    }
+                }
+
+                System.out.println("FAULT #" + faultCount + ", Removing: " + storage[storage.length-1]);
+            }
+        } //END OF INPUT ARRAY
+
         return 0;
     }
     boolean search(int[] A, int x){
