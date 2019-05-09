@@ -18,33 +18,41 @@ public class Replacement {
         int[] arr = stringToIntArray(testS);
         //for(int i : arr) System.out.println(i);
         frames = 3;
-        System.out.println("Testing: " + testS + ", " + frames + " frames");
-        FIFO(arr);
+        //System.out.println("Testing: " + testS + ", " + frames + " frames");
+        //FIFO(arr);
 
 
-        /*try(BufferedReader br = new BufferedReader(new FileReader(args[0]))){
+        try(BufferedReader br = new BufferedReader(new FileReader(args[0]))){
             String line;
             while((line = br.readLine()) != null){
+                System.out.println("-------------------------------------------------------------");
                 //TODO: create a method that turns the string into an array of ints
-                FIFO_sum += FIFO(line);
-                LRU_sum += LRU(line);
-                RAND_sum += Random(line);
-                OPT_sum += Optimized(line);
+                arr = stringToIntArray(line);
+                //System.out.println("FILE");
+                FIFO(arr);
+                LRU(arr);
+                Optimized(arr);
+//                FIFO_sum += FIFO(line);
+//                LRU_sum += LRU(line);
+//                RAND_sum += Random(line);
+//                OPT_sum += Optimized(line);
+
                 counter++;
+                System.out.println("-------------------------------------------------------------");
             }
         }
         catch (Exception e){}
 
-        System.out.println("Here are the average page faults for each method:" +
-                "\nFIFO: " + (FIFO_sum/counter) +
-                "\nLRU: " + (LRU_sum/counter) +
-                "\nRandom: " + (RAND_sum/counter) +
-                "\nOptimized: " + (OPT_sum/counter));*/
+//        System.out.println("Here are the average page faults for each method:" +
+//                "\nFIFO: " + (FIFO_sum/counter) +
+//                "\nLRU: " + (LRU_sum/counter) +
+//                "\nRandom: " + (RAND_sum/counter) +
+//                "\nOptimized: " + (OPT_sum/counter));
     }
     // TODO: loop for every number in the line
 
     public static void FIFO(int[] arr) {
-        System.out.println("FIFO START");
+        //System.out.println("FIFO START");
         int[] storage = new int[frames]; //page frames holding page references
         int faultCount = 0;
         int replace = 0; //index of page replacement
@@ -77,7 +85,7 @@ public class Replacement {
     }
 
     public static void LRU(int[] arr){ //Least Recently Used
-        System.out.println("LRU START");
+        //System.out.println("LRU START");
         int[] storage = new int[frames]; //page frames holding page references
         int faultCount = 0;
 
@@ -128,7 +136,7 @@ public class Replacement {
             }
         }
 
-        System.out.println("OPTIMIZED START");
+        //System.out.println("OPTIMIZED START");
 
         for (int i = 0; i < arr.length; i++) { //for every number in the string
             int num = arr[i];
@@ -137,7 +145,7 @@ public class Replacement {
                 int page = storage[f][0];
                 if(num == page) { //HIT
                     miss = false;
-                    System.out.println("HIT at Frame #" + f);
+                    //System.out.println("HIT at Frame #" + f);
                     break;
                 }
             }
@@ -151,8 +159,8 @@ public class Replacement {
 
                 for(int f = 0; f < storage.length; f++) {
                     if(storage[f][1] == greatest) { //find and replace optimal page
-                        System.out.print(storage[f][0] + " used next in " + storage[f][1] + " --> ");
-                        System.out.println("FAULT #" + faultCount + ", Replace with: " + num);
+                        //System.out.print(storage[f][0] + " used next in " + storage[f][1] + " --> ");
+                        //System.out.println("FAULT #" + faultCount + ", Replace with: " + num);
                         storage[f][0] = num; //place page reference in storage
                         int nextUse = 1;
                         for(int j = i+1; j < arr.length; j++) { //For new num, count until next use
